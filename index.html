@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+ <title>Resturant Order</title>
+ <meta charset="utf-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1">
+ <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body onload="showOrders()">
+ <div class="container">
+  <div class="row">
+   <div class="col-md-8 mx-auto">
+    <h1>Resturant Order Management</h1>
+    <form onsubmit="return addorder()">
+     <input type="hidden" id="editIndex">
+     <div class="form-group">
+      <label for="dish">Choose Dish</label>
+      <input type="text" id="dish" class="form-control" required>
+     </div>
+     <div class="form-group">
+      <label for="price">Price</label>
+      <input type="number" id="price" class="form-control" required>
+     </div>
+     <div class="form-group">
+      <label for="tableno">Table</label>
+      <input type="number" id="tableno" class="form-control" required>
+     </div>
+     <button type="submit" id="addButton" class="btn btn-primary">Add order</button>
+    </form>
+    <br>
+    <table class="table table-striped table-bordered" id="orderTable">
+     <thead>
+      <tr>
+       <th>Choosen Dish</th>
+       <th>Price</th>
+       <th>Table</th>
+       <th>Actions</th>
+      </tr>
+     </thead>
+     <tbody></tbody>
+    </table>
+   </div>
+  </div>
+ </div>
+ 
+ <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+ <script src="crud.js"></script>
+ <script>
+  // add order to table and local storage
+  function addorder() {
+   var dish = document.getElementById('dish').value;
+   var price = document.getElementById('price').value;
+   var tableno = document.getElementById('tableno').value;
+   var editIndex = document.getElementById('editIndex').value;
+
+   if (editIndex === '') {
+    var orders = JSON.parse(localStorage.getItem('orders')) || [];
+    orders.push({dish: dish, price: price, tableno: tableno});
+    localStorage.setItem('orders', JSON.stringify(orders));
+    var tableBody = document.getElementById('orderTable').getElementsByTagName('tbody')[0];
+    var row = '<tr><td>' + dish + '</td><td>' + price + '</td><td>' + tableno + '</td><td><button type="button" class="btn btn-sm btn-danger" onclick="deleteorder(this.parentNode.parentNode)">Delete</button></td></tr>';
+    tableBody.insertAdjacentHTML('beforeend', row);
+   } 
+
+   resetForm();
+   return false;
+  }
+
+  // reset the form
+  function resetForm() {
+   document.getElementById('dish').value = '';
+   document.getElementById('price').value = '';
+   document.getElementById('tableno').value = '';
+   document.getElementById('editIndex').value = '';
+   document.getElementById('addButton').innerHTML = 'Add order';
+  }
+
+  // delete order from table and local storage
+  function deleteorder(row) {
+   row.parentNode.removeChild(row);
+   var orders = JSON.parse(localStorage.getItem('orders'))
+      var rowIndex = row.rowIndex - 1;
+      orders.splice(rowIndex, 1);
+      localStorage.setItem('orders', JSON.stringify(orders));
+ }
+
+ // edit order in form
+ function editForm(row) {
+  var rowIndex = row.rowIndex - 1;
+  var orders = JSON.parse(localStorage.getItem('orders')) || [];
+  var order = orders[rowIndex];
+  document.getElementById('dish').value = order.dish;
+  document.getElementById('price').value = order.price;
+  document.getElementById('tableno').value = order.tableno;
+  document.getElementById('editIndex').value = rowIndex;
+  document.getElementById('addButton').innerHTML = 'Updish order';
+ }
+
+ // edit order in table and local storage
+ function editorder(index, dish, price, tableno) {
+  var orders = JSON.parse(localStorage.getItem('orders')) || [];
+  orders[index] = {dish: dish, price: price, tableno: tableno};
+  localStorage.setItem('orders', JSON.stringify(orders));
+  var tableRow = document.getElementById('orderTable').rows[index+1];
+  tableRow.cells[0].innerHTML = dish;
+  tableRow.cells[1].innerHTML = price;
+  tableRow.cells[2].innerHTML = tableno;
+  resetForm();
+ }
+
+ function showorders() {
+	var orders = JSON.parse(localStorage.getItem('orders')) || [];
+	var tableBody = document.getElementById('orderTable').getElementsByTagName('tbody')[0];
+	for (var i = 0; i < orders.length; i++) {
+	 var order = orders[i];
+	 var row = '<tr><td>' + order.dish + '</td><td>' + order.price + '</td><td>' + order.tableno + '</td><td><button type="button" class="btn btn-sm btn-primary" onclick="editForm(this.parentNode.parentNode)">Edit</button> <button type="button" class="btn btn-sm btn-danger" onclick="deleteorder(this.parentNode.parentNode)">Delete</button></td></tr>';
+	 tableBody.insertAdjacentHTML('beforeend', row);
+	}
+   }
+  </script>
